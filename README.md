@@ -1,2 +1,2 @@
-# matrixchain
+# Matrixchain
 Matrixchain
