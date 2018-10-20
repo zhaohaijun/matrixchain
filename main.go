@@ -22,7 +22,7 @@ func Test(params interface{}) {
 func main() {
 	animals := []Animal{Cat{}, Dog{}}
 	for _, animal := range animals {
-		fmt.Println("speak %s", animal.Speak)
+		fmt.Println(animal.Speak())
 	}
 	Test("String")
 	Test(123)
@@ -33,10 +33,14 @@ func main() {
 		vals[i] = v
 	}
 	PrintAll(vals)
+	fmt.Println(Add(1, 2))
 
 }
 func PrintAll(vals []interface{}) {
 	for _, val := range vals {
 		fmt.Println(val)
 	}
+}
+func Add(x, y int) int {
+	return x + y
 }
