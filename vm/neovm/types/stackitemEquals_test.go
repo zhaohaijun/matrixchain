@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/zhaohaijun/matrix/common"
+	"github.com/zhaohaijun/matrixchain/common"
 )
 
 func TestBoolean_Equals(t *testing.T) {

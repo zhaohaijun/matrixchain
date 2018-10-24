@@ -2,11 +2,12 @@ package types
 
 import (
 	"math/big"
-	"matrixchain/vm/neovm/interfaces"
+
+	"github.com/zhaohaijun/matrixchain/vm/neovm/interfaces"
 )
 
-type stackStackItems interface {
-	Equals(other StackkItems) bool
+type StackItems interface {
+	Equals(other StackItems) bool
 	GetBigInteger() (*big.Int, error)
 	GetBoolean() (bool, error)
 	GetByteArray() ([]byte, error)
