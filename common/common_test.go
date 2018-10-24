@@ -23,7 +23,7 @@ func TestGetNonce(t *testing.T) {
 func TestFileExisted(t *testing.T) {
 	assert.True(t, FileExisted("common_test.go"))
 	assert.True(t, FileExisted("common.go"))
-	assert.False(t, FileExisted("../log/log.og"))
-	assert.False(t, FileExisted("../log/log.go"))
-	assert.True(t, FileExisted("./log/log.go"))
+	assert.False(t, FileExisted("../../log/log.og"))
+	assert.False(t, FileExisted("../../log/log.go"))
+	assert.True(t, FileExisted("../log/log.go"))
 }

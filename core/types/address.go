@@ -3,10 +3,10 @@ package types
 import (
 	"errors"
 
-	"github.com/ontio/ontology/common"
-	"github.com/ontio/ontology/common/constants"
-	"github.com/ontio/ontology/core/program"
 	"github.com/zhaohaijun/blockchain-crypto/keypair"
+	"github.com/zhaohaijun/matrixchain/common"
+	"github.com/zhaohaijun/matrixchain/common/constants"
+	"github.com/zhaohaijun/matrixchain/core/program"
 )
 
 func AddressFromPubKey(pubkey keypair.PublicKey) common.Address {
