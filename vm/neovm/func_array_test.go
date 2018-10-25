@@ -6,7 +6,7 @@ import (
 	"bytes"
 	"math/big"
 
-	vtypes "github.com/zhaohaijun/matrix-chain/vm/neovm/types"
+	vtypes "github.com/zhaohaijun/matrixchain/vm/neovm/types"
 )
 
 func TestOpArraySize(t *testing.T) {
