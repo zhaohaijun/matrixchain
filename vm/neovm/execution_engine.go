@@ -1,6 +1,15 @@
 package neovm
 
-import "matrixchain/vm/neovm/errors"
+import "github.com/zhaohaijun/matrixchain/vm/neovm/errors"
+
+func NewExecutionEngine() *ExecutionEngine {
+	var engine ExecutionEngine
+	engine.EvaluationStack = NewRandAccessStack()
+	engine.AltStack = NewRandAccessStack()
+	engine.State = BREAK
+	engine.OpCode = 0
+	return &engine
+}
 
 type ExecutionEngine struct {
 	EvaluationStack *RandomAccessStack
@@ -12,14 +21,6 @@ type ExecutionEngine struct {
 	OpExec          OpExec
 }
 
-func NewExecutionEngine() *NewExecutionEngine {
-	var engine ExecutionEngine
-	engine.EvaluationStack = NewRandAccessStack()
-	engine.AltStack = NewRandAccessStack()
-	engine.State = BREAK
-	engine.OpCode = 0
-	return &engine
-}
 func (this *ExecutionEngine) CurrentContext() *ExecutionContext {
 	return this.Contexts[len(this.Contexts)-1]
 }

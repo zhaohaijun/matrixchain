@@ -3,7 +3,7 @@ package signature
 import (
 	"testing"
 
-	"github.com/ontio/ontology/account"
+	"github.com/ontio/o"
 	"github.com/stretchr/testify/assert"
 	"github.com/zhaohaijun/blockchain-crypto/keypair"
 )
