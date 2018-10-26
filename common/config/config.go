@@ -10,8 +10,8 @@ import (
 
 	"github.com/zhaohaijun/blockchain-crypto/keypair"
 	"github.com/zhaohaijun/matrixchain/common"
+	"github.com/zhaohaijun/matrixchain/common/constants"
 	"github.com/zhaohaijun/matrixchain/common/serialization"
-	"github.com/zhaohaijun/matrixchain/constants"
 	"github.com/zhaohaijun/matrixchain/errors"
 	"github.com/zhaohaijun/matrixchain/log"
 )
