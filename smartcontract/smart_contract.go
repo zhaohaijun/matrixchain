@@ -1,0 +1,171 @@
+package smartcontract
+
+import (
+	"fmt"
+
+	"github.com/zhaohaijun/matrixchain/common"
+	"github.com/zhaohaijun/matrixchain/common/log"
+	"github.com/zhaohaijun/matrixchain/core/store"
+	ctypes "github.com/zhaohaijun/matrixchain/core/types"
+	"github.com/zhaohaijun/matrixchain/smartcontract/context"
+	"github.com/zhaohaijun/matrixchain/smartcontract/event"
+	"github.com/zhaohaijun/matrixchain/smartcontract/service/native"
+	"github.com/zhaohaijun/matrixchain/smartcontract/service/neovm"
+	"github.com/zhaohaijun/matrixchain/smartcontract/storage"
+	vm "github.com/zhaohaijun/matrixchain/vm/neovm"
+)
+
+const (
+	MAX_EXECUTE_ENGINE = 1024
+)
+
+// SmartContract describe smart contract execute engine
+type SmartContract struct {
+	Contexts      []*context.Context // all execute smart contract context
+	CacheDB       *storage.CacheDB   // state cache
+	Store         store.LedgerStore  // ledger store
+	Config        *Config
+	Notifications []*event.NotifyEventInfo // all execute smart contract event notify info
+	Gas           uint64
+	ExecStep      int
+}
+
+// Config describe smart contract need parameters configuration
+type Config struct {
+	Time       uint32              // current block timestamp
+	Height     uint32              // current block height
+	RandomHash common.Uint256      // current block hash
+	Tx         *ctypes.Transaction // current transaction
+}
+
+// PushContext push current context to smart contract
+func (this *SmartContract) PushContext(context *context.Context) {
+	this.Contexts = append(this.Contexts, context)
+}
+
+// CurrentContext return smart contract current context
+func (this *SmartContract) CurrentContext() *context.Context {
+	if len(this.Contexts) < 1 {
+		return nil
+	}
+	return this.Contexts[len(this.Contexts)-1]
+}
+
+// CallingContext return smart contract caller context
+func (this *SmartContract) CallingContext() *context.Context {
+	if len(this.Contexts) < 2 {
+		return nil
+	}
+	return this.Contexts[len(this.Contexts)-2]
+}
+
+// EntryContext return smart contract entry entrance context
+func (this *SmartContract) EntryContext() *context.Context {
+	if len(this.Contexts) < 1 {
+		return nil
+	}
+	return this.Contexts[0]
+}
+
+// PopContext pop smart contract current context
+func (this *SmartContract) PopContext() {
+	if len(this.Contexts) > 1 {
+		this.Contexts = this.Contexts[:len(this.Contexts)-1]
+	}
+}
+
+// PushNotifications push smart contract event info
+func (this *SmartContract) PushNotifications(notifications []*event.NotifyEventInfo) {
+	this.Notifications = append(this.Notifications, notifications...)
+}
+
+func (this *SmartContract) CheckExecStep() bool {
+	if this.ExecStep >= neovm.VM_STEP_LIMIT {
+		return false
+	}
+	this.ExecStep += 1
+	return true
+}
+
+func (this *SmartContract) CheckUseGas(gas uint64) bool {
+	if this.Gas < gas {
+		return false
+	}
+	this.Gas -= gas
+	return true
+}
+
+func (this *SmartContract) checkContexts() bool {
+	if len(this.Contexts) > MAX_EXECUTE_ENGINE {
+		return false
+	}
+	return true
+}
+
+// Execute is smart contract execute manager
+// According different vm type to launch different service
+func (this *SmartContract) NewExecuteEngine(code []byte) (context.Engine, error) {
+	if !this.checkContexts() {
+		return nil, fmt.Errorf("%s", "engine over max limit!")
+	}
+	service := &neovm.NeoVmService{
+		Store:      this.Store,
+		CacheDB:    this.CacheDB,
+		ContextRef: this,
+		Code:       code,
+		Tx:         this.Config.Tx,
+		Time:       this.Config.Time,
+		Height:     this.Config.Height,
+		RandomHash: this.Config.RandomHash,
+		Engine:     vm.NewExecutionEngine(),
+	}
+	return service, nil
+}
+
+func (this *SmartContract) NewNativeService() (*native.NativeService, error) {
+	if !this.checkContexts() {
+		return nil, fmt.Errorf("%s", "engine over max limit!")
+	}
+	service := &native.NativeService{
+		CacheDB:    this.CacheDB,
+		ContextRef: this,
+		Tx:         this.Config.Tx,
+		Time:       this.Config.Time,
+		Height:     this.Config.Height,
+		RandomHash: this.Config.RandomHash,
+		ServiceMap: make(map[string]native.Handler),
+	}
+	return service, nil
+}
+
+// CheckWitness check whether authorization correct
+// If address is wallet address, check whether in the signature addressed list
+// Else check whether address is calling contract address
+// Param address: wallet address or contract address
+func (this *SmartContract) CheckWitness(address common.Address) bool {
+	if this.checkAccountAddress(address) || this.checkContractAddress(address) {
+		return true
+	}
+	return false
+}
+
+func (this *SmartContract) checkAccountAddress(address common.Address) bool {
+	addresses, err := this.Config.Tx.GetSignatureAddresses()
+	if err != nil {
+		log.Errorf("get signature address error:%v", err)
+		return false
+	}
+	for _, v := range addresses {
+		if v == address {
+			return true
+		}
+	}
+	return false
+}
+
+func (this *SmartContract) checkContractAddress(address common.Address) bool {
+	if this.CallingContext() != nil && this.CallingContext().ContractAddress == address {
+		return true
+	}
+	return false
+}
