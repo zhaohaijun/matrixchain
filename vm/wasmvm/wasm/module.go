@@ -8,7 +8,7 @@ import (
 	"errors"
 	"io"
 
-	"github.com/zhaohaijun/matrixchain/vm/wasmvm/wasm/internal/readpos"
+	"matrixchain/vm/wasmvm/wasm/internal/readpos"
 )
 
 var ErrInvalidMagic = errors.New("wasm: Invalid magic number")

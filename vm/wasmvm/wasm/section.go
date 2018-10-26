@@ -11,7 +11,8 @@ import (
 	"io"
 	"io/ioutil"
 
-	"github.com/zhaohaijun/matrixchain/vm/wasmvm/wasm/internal/readpos"
+	"matrixchain/vm/wasmvm/wasm/internal/readpos"
+
 	"github.com/zhaohaijun/matrixchain/vm/wasmvm/wasm/leb128"
 )
 
